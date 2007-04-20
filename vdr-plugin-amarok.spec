@@ -1,8 +1,8 @@
 
 %define plugin	amarok
 %define name	vdr-plugin-%plugin
-%define version	0.0.1c
-%define rel	2
+%define version	0.0.2
+%define rel	1
 
 Summary:	VDR plugin: A frontend for KDE's amarok
 Name:		%name
