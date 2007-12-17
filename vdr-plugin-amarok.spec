@@ -12,7 +12,6 @@ Group:		Video
 License:	GPL
 URL:		http://irimi.ir.ohost.de/
 Source:		http://irimi.ir.ohost.de/vdr-%plugin-%version.tar.bz2
-BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	vdr-devel >= 1.4.1-6
 Requires:	vdr-abi = %vdr_abi
 
