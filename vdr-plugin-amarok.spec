@@ -2,7 +2,7 @@
 %define plugin	amarok
 %define name	vdr-plugin-%plugin
 %define version	0.0.2
-%define rel	7
+%define rel	8
 
 Summary:	VDR plugin: A frontend for KDE's amarok
 Name:		%name
@@ -12,8 +12,9 @@ Group:		Video
 License:	GPL
 URL:		http://irimi.ir.ohost.de/
 Source:		http://irimi.ir.ohost.de/vdr-%plugin-%version.tar.bz2
+Patch0:		amarok-0.0.2-i18n-1.6.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	vdr-devel >= 1.4.1-6
+BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
 %description
@@ -30,6 +31,8 @@ Gateway for the VDR amarok plugin.
 
 %prep
 %setup -q -n %plugin-%version
+%patch0 -p1
+%vdr_plugin_prep
 chmod 0644 README HISTORY vdramgw/README vdramgw/HISTORY
 chmod 0644 vdramgw/vdramgw.conf contrib/jpeg2vdrmpg.sh
 
