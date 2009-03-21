@@ -14,6 +14,7 @@ URL:		http://irimi.ir.ohost.de/
 Source:		http://irimi.ir.ohost.de/vdr-%plugin-%version.tar.bz2
 Patch0:		amarok-0.0.2-i18n-1.6.patch
 Patch1:		vdr-amarok-includes.patch
+Patch2:		vdr-amarok-format-string.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
@@ -34,6 +35,7 @@ Gateway for the VDR amarok plugin.
 %setup -q -n %plugin-%version
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 %vdr_plugin_prep
 chmod 0644 README HISTORY vdramgw/README vdramgw/HISTORY
 chmod 0644 vdramgw/vdramgw.conf contrib/jpeg2vdrmpg.sh
