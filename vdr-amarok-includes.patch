@@ -1,0 +1,48 @@
+Index: amarok-0.0.2/Sockets.cpp
+===================================================================
+--- amarok-0.0.2/Sockets.cpp
++++ amarok-0.0.2/Sockets.cpp	2009-07-27 16:39:36.932843520 +0300
+@@ -24,6 +24,7 @@
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <cerrno>
++#include <cstring>
+ #include <netdb.h>
+ #include <arpa/inet.h>
+ #define INVALID_SOCKET -1
+Index: amarok-0.0.2/amarokCommander.cpp
+===================================================================
+--- amarok-0.0.2/amarokCommander.cpp
++++ amarok-0.0.2/amarokCommander.cpp	2009-07-27 16:40:07.744093136 +0300
+@@ -19,6 +19,7 @@
+  ***************************************************************************/
+ 
+ #include <string>
++#include <cstdio>
+ #include "amarokCommander.h"
+ #include "amarokData.h"
+ 
+Index: amarok-0.0.2/vdramgw/Sockets.cpp
+===================================================================
+--- amarok-0.0.2/vdramgw/Sockets.cpp
++++ amarok-0.0.2/vdramgw/Sockets.cpp	2009-07-27 16:39:36.974092785 +0300
+@@ -24,6 +24,7 @@
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <cerrno>
++#include <cstring>
+ #include <netdb.h>
+ #include <arpa/inet.h>
+ #define INVALID_SOCKET -1
+Index: amarok-0.0.2/vdramgw/vdramgw.cpp
+===================================================================
+--- amarok-0.0.2/vdramgw/vdramgw.cpp
++++ amarok-0.0.2/vdramgw/vdramgw.cpp	2009-07-27 16:39:37.002092647 +0300
+@@ -30,6 +30,7 @@
+ #include <cstdlib>
+ #include <string>
+ #include <fstream>
++#include <cstring>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ 

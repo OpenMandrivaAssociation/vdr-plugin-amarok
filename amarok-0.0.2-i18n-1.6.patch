@@ -1,0 +1,1679 @@
+
+This is a semi-automatically created i18n adaptation patch and may contain
+errors (such as missing translations). This should only be used as a
+temporary measure until the upstream plugin maintainer fixes the plugin
+properly according to the instructions in i18n-to-gettext.pl.
+
+Created for Mandriva Linux packaging by Anssi Hannula <anssi@mandriva.org>.
+
+
+Index: amarok-0.0.2/Makefile
+===================================================================
+--- amarok-0.0.2/Makefile
++++ amarok-0.0.2/Makefile	2008-04-16 10:01:07.000000000 +0300
+@@ -45,7 +45,7 @@
+ 
+ ### The object files (add further files here):
+ 
+-OBJS = $(PLUGIN).o amarokClient.o amarokCommander.o amarokData.o  Sockets.o amarok_i18n.o menuAmarokSetup.o menuAmarok.o amarokPlayer.o
++OBJS = $(PLUGIN).o amarokClient.o amarokCommander.o amarokData.o  Sockets.o  menuAmarokSetup.o menuAmarok.o amarokPlayer.o
+ 
+ ### Implicit rules:
+ 
+@@ -61,9 +61,34 @@
+ 
+ -include $(DEPFILE)
+ 
++### Internationalization (I18N):
++
++PODIR     = po
++LOCALEDIR = $(VDRDIR)/locale
++I18Npo    = $(wildcard $(PODIR)/*.po)
++I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
++I18Npot   = $(PODIR)/$(PLUGIN).pot
++
++%.mo: %.po
++	msgfmt -c -o $@ $<
++
++$(I18Npot): $(wildcard *.[ch]*)
++	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<http://qa.mandriva.com/>' -o $@ $^
++
++%.po: $(I18Npot)
++	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
++	@touch $@
++
++$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
++	@mkdir -p $(dir $@)
++	cp $< $@
++
++.PHONY: i18n
++i18n: $(I18Nmsgs)
++
+ ### Targets:
+ 
+-all: libvdr-$(PLUGIN).so
++all: libvdr-$(PLUGIN).so i18n
+ 
+ libvdr-$(PLUGIN).so: $(OBJS)
+ 	$(CXX) $(CXXFLAGS) -shared $(OBJS) -o $@
+@@ -81,4 +106,5 @@
+ 	@echo Distribution package created as $(PACKAGE).tgz
+ 
+ clean:
++	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
+ 	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz *.bz2 core* *~
+Index: amarok-0.0.2/amarok.cpp
+===================================================================
+--- amarok-0.0.2/amarok.cpp
++++ amarok-0.0.2/amarok.cpp	2008-04-16 10:05:51.000000000 +0300
+@@ -10,7 +10,7 @@
+ #include "menuAmarok.h"
+ #include "commands.h"
+ #include "menuAmarokSetup.h"
+-#include "amarok_i18n.h"
++
+ 
+ static const char *VERSION        = "0.0.2";
+ static const char *DESCRIPTION    = "A frontend for KDE's amarok";
+@@ -119,7 +119,6 @@
+ 
+ bool cPluginAmarok::Start(void)
+ {
+-    RegisterI18n(tlPhrases);
+     // Start any background activities the plugin shall perform.
+     g_amarokConfig.p_ConfigDir = strdup (ConfigDirectory(Name()));
+     return true;
+Index: amarok-0.0.2/menuAmarok.cpp
+===================================================================
+--- amarok-0.0.2/menuAmarok.cpp
++++ amarok-0.0.2/menuAmarok.cpp	2008-04-16 10:01:07.000000000 +0300
+@@ -23,7 +23,7 @@
+ #include <vdr/tools.h>
+ #include "menuAmarok.h"
+ #include "menuAmarokSetup.h"
+-#include "amarok_i18n.h"
++
+ #include "amarokPlayer.h"
+ #include "amarokData.h"
+ 
+@@ -722,14 +722,14 @@
+ // unfortunately these playlists are not managed by the amarok DB in v1.4 or older
+ char *AMAROK_STATIC_PLAYLISTS []=
+     {
+-        "50 Random Tracks",
+-        "All Collection",
+-        "Ever Played",
+-        "Favorite Tracks",
+-        "Last Played",
+-        "Most Played",
+-        "Never Played",
+-        "Newest Tracks"
++        trNOOP("50 Random Tracks"),
++        trNOOP("All Collection"),
++        trNOOP("Ever Played"),
++        trNOOP("Favorite Tracks"),
++        trNOOP("Last Played"),
++        trNOOP("Most Played"),
++        trNOOP("Never Played"),
++        trNOOP("Newest Tracks")
+     };
+ 
+ cMenuAmarokLists::cMenuAmarokLists(cAmarokPlayer *player)
+Index: amarok-0.0.2/po/amarok.pot
+===================================================================
+--- amarok-0.0.2/po/amarok.pot
++++ amarok-0.0.2/po/amarok.pot	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,169 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the PACKAGE package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr ""
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr ""
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr ""
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr ""
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr ""
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr ""
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/ca_ES.po
+===================================================================
+--- amarok-0.0.2/po/ca_ES.po
++++ amarok-0.0.2/po/ca_ES.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "Navegador del amaroK"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Esborrar"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Àlbum"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr "Any"
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr ""
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Bitrate"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Afegir"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Intèrpret"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/de_DE.po
+===================================================================
+--- amarok-0.0.2/po/de_DE.po
++++ amarok-0.0.2/po/de_DE.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr "amaroK Host Verbindung fehlgeschlagen"
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr "amaroK host Login fehlgeschlagen"
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr "Leere Liste"
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr "gespielt"
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr "Wertung"
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr "Zeit"
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr "Stück"
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr "Versuche mit amaroK zu verbinden..."
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "amaroK Spieler"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr "Ändern"
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr "amaroK Wiedergabeliste Editor"
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr "Leere L."
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr "Abfrage"
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Entfernen"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr "Mischen"
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr "amaroK aktuelle Musikstück Ansicht"
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Album"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr "Jahr"
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr "Genre"
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Bit Rate"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr "Aktuelle Musikstück Statistik"
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr "Kommentar"
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr "Musikstück-Informationen nicht verfügbar"
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr "OSD anz."
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr "amaroK Datenbank Abfrage"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Hinzufügen"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr "Listen"
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Interpret"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr "Bitte warten! Datenbankabfrage läuft."
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr "50 zufällige Stücke"
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr "Gesamte Sammlung"
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr "Jemals gespielt"
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr "Lieblingsstücke"
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr "Zuletzt gespielt"
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr "Meistgespielte"
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr "Nie gespielt"
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr "Neueste Stücke"
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/el_GR.po
+===================================================================
+--- amarok-0.0.2/po/el_GR.po
++++ amarok-0.0.2/po/el_GR.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-7\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "amaroK endiksi fakelon"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Aferesi"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Album"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr "Etos"
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr ""
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Bitrate"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Prosthesi"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Ermineftis"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/es_ES.po
+===================================================================
+--- amarok-0.0.2/po/es_ES.po
++++ amarok-0.0.2/po/es_ES.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "Navegador del amaroK"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Borrar"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Album"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr ""
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr ""
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Bitrate"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Añadir"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Artista"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/fi_FI.po
+===================================================================
+--- amarok-0.0.2/po/fi_FI.po
++++ amarok-0.0.2/po/fi_FI.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr ""
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr ""
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr ""
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr "Tyylilaji"
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr ""
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr ""
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/fr_FR.po
+===================================================================
+--- amarok-0.0.2/po/fr_FR.po
++++ amarok-0.0.2/po/fr_FR.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "Navigateur amaroK"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Enlever"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Album"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr "Année"
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr "Genre"
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Précision"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Ajouter"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Artiste"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/sl_SI.po
+===================================================================
+--- amarok-0.0.2/po/sl_SI.po
++++ amarok-0.0.2/po/sl_SI.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-2\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "amaroK navigator"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Odstrani"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Album"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr "Leto"
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr ""
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Bitna hitrost"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Dodaj"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Avtor"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
+Index: amarok-0.0.2/po/sv_SE.po
+===================================================================
+--- amarok-0.0.2/po/sv_SE.po
++++ amarok-0.0.2/po/sv_SE.po	2008-04-16 10:01:07.000000000 +0300
+@@ -0,0 +1,168 @@
++# VDR amarok plugin language source file.
++# Copyright (C) YEAR THE VDR-amarok'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-amarok package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-amarok\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-16 10:01+0300\n"
++"PO-Revision-Date: 2008-04-16 10:01+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: amarokPlayer.cpp:136
++msgid "Connection to amaroK host has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:138
++msgid "amaroK host login has failed"
++msgstr ""
++
++#: amarokPlayer.cpp:232 menuAmarok.cpp:654
++msgid "Empty list"
++msgstr ""
++
++#: amarokPlayer.cpp:445
++msgid "played"
++msgstr ""
++
++#: amarokPlayer.cpp:446
++msgid "score"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:327
++msgid "Time"
++msgstr ""
++
++#: amarokPlayer.cpp:467 menuAmarok.cpp:157 menuAmarok.cpp:327
++msgid "Track"
++msgstr ""
++
++#: menuAmarok.cpp:122
++msgid "Trying to connect to amaroK..."
++msgstr ""
++
++#: menuAmarok.cpp:156
++msgid "amaroK Player"
++msgstr "amaroK-bläddrare"
++
++#: menuAmarok.cpp:157
++msgid "Change"
++msgstr ""
++
++#: menuAmarok.cpp:161
++msgid "amaroK Playlist Editor"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Clear l."
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Query"
++msgstr ""
++
++#: menuAmarok.cpp:162
++msgid "Remove"
++msgstr "Radera"
++
++#: menuAmarok.cpp:162
++msgid "Shuffle"
++msgstr ""
++
++#: menuAmarok.cpp:299
++msgid "amaroK Current Track View"
++msgstr ""
++
++#: menuAmarok.cpp:332
++msgid "Album"
++msgstr "Album"
++
++#: menuAmarok.cpp:335
++msgid "Year"
++msgstr "År"
++
++#: menuAmarok.cpp:337 menuAmarok.cpp:467 menuAmarok.cpp:470
++msgid "Genre"
++msgstr ""
++
++#: menuAmarok.cpp:339
++msgid "Bitrate"
++msgstr "Bithastighet"
++
++#: menuAmarok.cpp:343
++msgid "Current track statistics"
++msgstr ""
++
++#: menuAmarok.cpp:347
++msgid "Comment"
++msgstr ""
++
++#: menuAmarok.cpp:356
++msgid "Trackinfos not available"
++msgstr ""
++
++#: menuAmarok.cpp:365
++msgid "show OSD"
++msgstr ""
++
++#: menuAmarok.cpp:442 menuAmarok.cpp:651
++msgid "amaroK Database Query"
++msgstr ""
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Add"
++msgstr "Lägg till"
++
++#: menuAmarok.cpp:467 menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Lists"
++msgstr ""
++
++#: menuAmarok.cpp:470 menuAmarok.cpp:473
++msgid "Artist"
++msgstr "Artist"
++
++#: menuAmarok.cpp:532
++msgid "Please wait ! Database query has started."
++msgstr ""
++
++#: menuAmarok.cpp:725
++msgid "50 Random Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:726
++msgid "All Collection"
++msgstr ""
++
++#: menuAmarok.cpp:727
++msgid "Ever Played"
++msgstr ""
++
++#: menuAmarok.cpp:728
++msgid "Favorite Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:729
++msgid "Last Played"
++msgstr ""
++
++#: menuAmarok.cpp:730
++msgid "Most Played"
++msgstr ""
++
++#: menuAmarok.cpp:731
++msgid "Never Played"
++msgstr ""
++
++#: menuAmarok.cpp:732
++msgid "Newest Tracks"
++msgstr ""
++
++#: menuAmarok.cpp:738
++msgid "amaroK's smart playlists"
++msgstr ""
