@@ -10,7 +10,7 @@ Version:	%version
 Release:	%mkrel %rel
 Group:		Video
 License:	GPL
-URL:		http://irimi.ir.ohost.de/
+URL:		https://irimi.ir.ohost.de/
 Source:		http://irimi.ir.ohost.de/vdr-%plugin-%version.tar.bz2
 Patch0:		amarok-0.0.2-i18n-1.6.patch
 Patch1:		vdr-amarok-includes.patch
