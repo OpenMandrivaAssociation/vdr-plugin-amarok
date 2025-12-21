@@ -16,6 +16,7 @@ Patch0:		amarok-0.0.2-i18n-1.6.patch
 Patch1:		vdr-amarok-includes.patch
 Patch2:		vdr-amarok-format-string.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	make
 BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
