@@ -7,7 +7,7 @@
 Summary:	VDR plugin: A frontend for KDE's amarok
 Name:		%name
 Version:	%version
-Release:	%mkrel %rel
+Release:	%rel.1
 Group:		Video
 License:	GPL
 URL:		https://irimi.ir.ohost.de/
